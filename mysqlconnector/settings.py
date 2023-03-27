@@ -9,12 +9,12 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+import mysql.connector
+from django.db import connections
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -27,8 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
+# make sure that  app1 is included in the INSTALLED_APPS list in your project's settings.py file.
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'app1'
 ]
 
 MIDDLEWARE = [
@@ -69,7 +70,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mysqlconnector.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -83,7 +83,25 @@ DATABASES = {
         'PORT': '3306'
     }
 }
+# create a new mysqldatabse connection
+try:
+    # attempt to connect to the database using the Django settings
+    connections['default'].ensure_connection()
 
+    # test the connectio using a sample query
+    with connections['default'].cursor() as cursor:
+        cursor.execute("SELECT 1")
+        row = cursor.fetchone()
+        print(row)
+
+    # if the connection is successful, print a success message
+    if row:
+        print("Connection to MySQL successful")
+    else:
+        print("Connection to MySQL failed")
+except mysql.connector.Error as err:
+    # if the connection fails, print an error message
+    print("Something went wrong: {}".format(err))
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -103,7 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -114,7 +131,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
